@@ -74,8 +74,8 @@ headOr ::
   a
   -> List a
   -> a
-headOr =
-  error "todo"
+headOr x Nil     = x
+headOr _ (x:._) = x
 
 -- | The product of the elements of a list.
 --
@@ -87,8 +87,8 @@ headOr =
 product ::
   List Int
   -> Int
-product =
-  error "todo"
+product Nil     = 1
+product (x:.xs) = x * product xs
 
 -- | Sum the elements of the list.
 --
@@ -102,8 +102,8 @@ product =
 sum ::
   List Int
   -> Int
-sum =
-  error "todo"
+sum Nil     = 0
+sum (x:.xs) = x + sum xs
 
 -- | Return the length of the list.
 --
@@ -114,8 +114,8 @@ sum =
 length ::
   List a
   -> Int
-length =
-  error "todo"
+length Nil      = 0
+length (_:. xs) = 1 + length xs
 
 -- | Map the given function on each element of the list.
 --
@@ -129,8 +129,8 @@ map ::
   (a -> b)
   -> List a
   -> List b
-map =
-  error "todo"
+map _ Nil     = Nil
+map f (x:.xs) = f x :. map f xs
 
 -- | Return elements satisfying the given predicate.
 --
@@ -146,8 +146,10 @@ filter ::
   (a -> Bool)
   -> List a
   -> List a
-filter =
-  error "todo"
+filter _ Nil = Nil
+filter p (x:.xs)
+  | p x       = x :. filter p xs
+  | otherwise = filter p xs
 
 -- | Append two lists to a new list.
 --
@@ -165,8 +167,8 @@ filter =
   List a
   -> List a
   -> List a
-(++) =
-  error "todo"
+(++) xs Nil = xs
+(++) xs ys  = foldRight (:.) ys xs
 
 infixr 5 ++
 
@@ -183,8 +185,8 @@ infixr 5 ++
 flatten ::
   List (List a)
   -> List a
-flatten =
-  error "todo"
+flatten Nil = Nil
+flatten (xs:.xss) = xs ++ flatten xss
 
 -- | Map a function then flatten to a list.
 --
@@ -200,8 +202,7 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap =
-  error "todo"
+flatMap f l = flatten $ map f l
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
@@ -210,12 +211,11 @@ flatMap =
 flattenAgain ::
   List (List a)
   -> List a
-flattenAgain =
-  error "todo"
+flattenAgain = flatMap id
 
 -- | Convert a list of optional values to an optional list of values.
 --
--- * If the list contains all `Full` values, 
+-- * If the list contains all `Full` values,
 -- then return `Full` list of values.
 --
 -- * If the list contains one or more `Empty` values,
