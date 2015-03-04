@@ -87,8 +87,7 @@ headOr _ (x:._) = x
 product ::
   List Int
   -> Int
-product Nil     = 1
-product (x:.xs) = x * product xs
+product = foldLeft (*) 1
 
 -- | Sum the elements of the list.
 --
@@ -102,8 +101,7 @@ product (x:.xs) = x * product xs
 sum ::
   List Int
   -> Int
-sum Nil     = 0
-sum (x:.xs) = x + sum xs
+sum = foldLeft (+) 0
 
 -- | Return the length of the list.
 --
@@ -114,8 +112,7 @@ sum (x:.xs) = x + sum xs
 length ::
   List a
   -> Int
-length Nil      = 0
-length (_:. xs) = 1 + length xs
+length = foldLeft (\acc _ -> 1 + acc) 0
 
 -- | Map the given function on each element of the list.
 --
@@ -129,8 +126,7 @@ map ::
   (a -> b)
   -> List a
   -> List b
-map _ Nil     = Nil
-map f (x:.xs) = f x :. map f xs
+map f = foldRight (\x xs -> f x :. xs) Nil
 
 -- | Return elements satisfying the given predicate.
 --
@@ -146,10 +142,7 @@ filter ::
   (a -> Bool)
   -> List a
   -> List a
-filter _ Nil = Nil
-filter p (x:.xs)
-  | p x       = x :. filter p xs
-  | otherwise = filter p xs
+filter p = foldRight (\x xs -> if p x then x:. xs else xs) Nil
 
 -- | Append two lists to a new list.
 --
@@ -167,8 +160,7 @@ filter p (x:.xs)
   List a
   -> List a
   -> List a
-(++) xs Nil = xs
-(++) xs ys  = foldRight (:.) ys xs
+(++)  = flip (foldRight (:.))
 
 infixr 5 ++
 
@@ -185,8 +177,7 @@ infixr 5 ++
 flatten ::
   List (List a)
   -> List a
-flatten Nil = Nil
-flatten (xs:.xss) = xs ++ flatten xss
+flatten = foldRight (++) Nil
 
 -- | Map a function then flatten to a list.
 --
