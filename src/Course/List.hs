@@ -193,7 +193,7 @@ flatMap ::
   (a -> List b)
   -> List a
   -> List b
-flatMap f l = flatten $ map f l
+flatMap f = flatten . map f
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
@@ -229,8 +229,9 @@ flattenAgain = flatMap id
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional =
-  error "todo"
+seqOptional = foldRight go (Full Nil)
+  where go (Full x) xs = P.fmap (x:.) xs
+        go Empty _     = Empty
 
 -- | Find the first element in the list matching the predicate.
 --
@@ -252,8 +253,7 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find =
-  error "todo"
+find p = headOr Empty . map Full . filter p
 
 -- | Determine if the length of the given list is greater than 4.
 --
@@ -271,8 +271,7 @@ find =
 lengthGT4 ::
   List a
   -> Bool
-lengthGT4 =
-  error "todo"
+lengthGT4 = (> 4) . length . take 5
 
 -- | Reverse a list.
 --
@@ -288,8 +287,7 @@ lengthGT4 =
 reverse ::
   List a
   -> List a
-reverse =
-  error "todo"
+reverse = foldLeft (flip (:.)) Nil
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
@@ -303,9 +301,7 @@ produce ::
   (a -> a)
   -> a
   -> List a
-produce =
-  error "todo"
-
+produce f s = let s' = f s in s :. produce f s'
 -- | Do anything other than reverse a list.
 -- Is it even possible?
 --
@@ -318,8 +314,7 @@ produce =
 notReverse ::
   List a
   -> List a
-notReverse =
-  error "todo"
+notReverse = reverse
 
 ---- End of list exercises
 
