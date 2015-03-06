@@ -104,7 +104,7 @@ sequence ::
   Applicative f =>
   List (f a)
   -> f (List a)
-sequence (a:.as) = foldRight (lift2 (:.)) pure Nil
+sequence = foldRight (lift2 (:.)) (pure Nil)
 
 -- | Replicate an effect a given number of times.
 --
@@ -154,7 +154,7 @@ filtering ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filtering p (x:xs) = sequence $ i
+filtering p = foldRight (\a -> lift2 (\b -> if b then (a:.) else id)(p a)) (pure Nil)
 
 -----------------------
 -- SUPPORT LIBRARIES --
