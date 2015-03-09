@@ -141,8 +141,8 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
-findM _ Nil      = return Empty
-findM p (x:. xs) =
+findM p = foldLeft go (return Empty)
+  where go x y = (\b -> if b then return (Full y) else x) =<< p y
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
@@ -155,8 +155,7 @@ firstRepeat ::
   Ord a =>
   List a
   -> Optional a
-firstRepeat =
-  error "todo"
+firstRepeat = eval findM (\x -> State $ \s -> (S.member x s, S.insert x s)) S.empty
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
