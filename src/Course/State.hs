@@ -41,7 +41,7 @@ instance Functor (State s) where
     (a -> b)
     -> State s a
     -> State s b
-  f <$> (State q) = State $ \s -> let (a, s') = q s in (f a, s')
+  f <$> q = State $ \s -> let (a, s') = runState q s in (f a, s')
 
 -- | Implement the `Apply` instance for `State s`.
 -- >>> runState (pure (+1) <*> pure 0) 0
@@ -55,9 +55,9 @@ instance Apply (State s) where
     State s (a -> b)
     -> State s a
     -> State s b
-  State s1 <*> State s2 = State $
-    \s -> let (ab, s') = s1 s
-              (a, s'') = s2 s'
+  s1 <*> s2 = State $
+    \s -> let (ab, s') = runState s1 s
+              (a, s'') = runState s2 s'
               in (ab a, s'')
 
 -- | Implement the `Applicative` instance for `State s`.
@@ -77,10 +77,9 @@ instance Bind (State s) where
     (a -> State s b)
     -> State s a
     -> State s b
-  f =<< State sa = State $
-    \s -> let (a', s') = sa s
-              State b  = f a'
-           in b s'
+  f =<< sa = State $
+    \s -> let (a', s') = runState sa s
+           in runState (f a') s'
 
 
 instance Monad (State s) where
@@ -141,8 +140,8 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
-findM p = foldLeft go (return Empty)
-  where go x y = (\b -> if b then return (Full y) else x) =<< p y
+findM p = foldRight go (return Empty)
+  where go x y = (\b -> if b then return (Full x) else y) =<< p x
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
@@ -151,11 +150,21 @@ findM p = foldLeft go (return Empty)
 --
 -- prop> case firstRepeat xs of Empty -> let xs' = hlist xs in nub xs' == xs'; Full x -> length (filter (== x) xs) > 1
 -- prop> case firstRepeat xs of Empty -> True; Full x -> let (l, (rx :. rs)) = span (/= x) xs in let (l2, r2) = span (/= x) rs in let l3 = hlist (l ++ (rx :. Nil) ++ l2) in nub l3 == l3
-firstRepeat ::
+
+firstRepeat' ::
   Ord a =>
   List a
   -> Optional a
-firstRepeat = eval findM (\x -> State $ \s -> (S.member x s, S.insert x s)) S.empty
+firstRepeat' list = f list S.empty
+  where f Nil _ = Empty
+        f (x:.xs) s = if S.member x s
+                         then Full x
+                         else f xs (S.insert x s)
+
+firstRepeat :: Ord a => List a -> Optional a
+firstRepeat xs = eval (findM f' xs) S.empty
+  where f' x = State $ S.member x &&& S.insert x
+            -- State $ \s -> (S.member x s, S.insert x s)
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
@@ -167,8 +176,8 @@ distinct ::
   Ord a =>
   List a
   -> List a
-distinct =
-  error "todo"
+distinct xs = eval (filtering f'' xs) S.empty
+  where f'' x = State $ S.notMember x &&& S.insert x
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
@@ -191,8 +200,13 @@ distinct =
 --
 -- >>> isHappy 44
 -- True
+--
+-- I did not do this
 isHappy ::
   Integer
   -> Bool
-isHappy =
-  error "todo"
+isHappy = contains 1 .
+  firstRepeat .
+    produce (toInteger . sum
+            . map (join (*) . digitToInt)
+            . show')
