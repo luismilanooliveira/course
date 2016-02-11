@@ -7,8 +7,7 @@ module Course.FileIO where
 
 import Course.Core
 import Course.Applicative
-import Course.Apply
-import Course.Bind
+import Course.Monad
 import Course.Functor
 import Course.List
 
@@ -47,7 +46,7 @@ And b.txt, containing:
 And c.txt, containing:
   the contents of c
 
-$ runhaskell io.hs "files.txt"
+$ runhaskell FileIO.hs "files.txt"
 ============ a.txt
 the contents of a
 
@@ -62,10 +61,8 @@ the contents of c
 -- /Tip:/ use @getArgs@ and @run@
 main ::
   IO ()
-main = getArgs >>= \args ->
-       case args of
-            (f :. Nil) -> run f
-            _          -> putStrLn "usage: runhaskell io.hs filename"
+main =
+  error "todo: Course.FileIO#main"
 
 type FilePath =
   Chars
@@ -74,30 +71,31 @@ type FilePath =
 run ::
   Chars
   -> IO ()
-run fp = readFile fp              >>= \content ->
-         getFiles (lines content) >>= \files   ->
-         printFiles files
+run =
+  error "todo: Course.FileIO#run"
 
 getFiles ::
   List FilePath
   -> IO (List (FilePath, Chars))
-getFiles = sequence . (<$>) getFile
+getFiles =
+  error "todo: Course.FileIO#getFiles"
 
 getFile ::
   FilePath
   -> IO (FilePath, Chars)
-getFile = lift2 (<$>) (,) readFile
+getFile =
+  error "todo: Course.FileIO#getFile"
 
 printFiles ::
   List (FilePath, Chars)
   -> IO ()
-printFiles = void . sequence . (<$>) (uncurry printFile)
+printFiles =
+  error "todo: Course.FileIO#printFiles"
 
 printFile ::
   FilePath
   -> Chars
   -> IO ()
-printFile fp content =
-  putStrLn ("============ " ++ fp) >>
-  putStrLn content
+printFile =
+  error "todo: Course.FileIO#printFile"
 

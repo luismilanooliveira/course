@@ -8,7 +8,7 @@ import Course.Core
 import Course.Id
 import Course.Optional
 import Course.List
-import qualified Prelude as P
+import qualified Prelude as P(fmap)
 
 -- | All instances of the `Functor` type-class must satisfy two laws. These laws
 -- are not checked by the compiler. These laws are given as:
@@ -41,7 +41,8 @@ instance Functor Id where
     (a -> b)
     -> Id a
     -> Id b
-  (<$>) = mapId
+  (<$>) =
+    error "todo: Course.Functor (<$>)#instance Id"
 
 
 -- | Maps a function on the List functor.
@@ -56,7 +57,8 @@ instance Functor List where
     (a -> b)
     -> List a
     -> List b
-  (<$>) = map
+  (<$>) =
+    error "todo: Course.Functor (<$>)#instance List"
 
 -- | Maps a function on the Optional functor.
 --
@@ -70,7 +72,8 @@ instance Functor Optional where
     (a -> b)
     -> Optional a
     -> Optional b
-  (<$>) = mapOptional
+  (<$>) =
+    error "todo: Course.Functor (<$>)#instance Optional"
 
 -- | Maps a function on the reader ((->) t) functor.
 --
@@ -81,14 +84,15 @@ instance Functor ((->) t) where
     (a -> b)
     -> ((->) t a)
     -> ((->) t b)
-  (<$>) = (.)
+  (<$>) =
+    error "todo: Course.Functor (<$>)#((->) t)"
 
 -- | Anonymous map. Maps a constant value on a functor.
 --
--- >>> 7 <$ [1,2,3]
+-- >>> 7 <$ (1 :. 2 :. 3 :. Nil)
 -- [7,7,7]
 --
--- prop> x <$ [a,b,c] == [x,x,x]
+-- prop> x <$ (a :. b :. c :. Nil) == (x :. x :. x :. Nil)
 --
 -- prop> x <$ Full q == Full x
 (<$) ::
@@ -96,11 +100,12 @@ instance Functor ((->) t) where
   a
   -> f b
   -> f a
-a <$ x = const a <$> x
+(<$) =
+  error "todo: Course.Functor#(<$)"
 
 -- | Anonymous map producing unit value.
 --
--- >>> void [1,2,3]
+-- >>> void (1 :. 2 :. 3 :. Nil)
 -- [(),(),()]
 --
 -- >>> void (Full 7)
@@ -115,7 +120,8 @@ void ::
   Functor f =>
   f a
   -> f ()
-void x = () <$ x
+void =
+  error "todo: Course.Functor#void"
 
 -----------------------
 -- SUPPORT LIBRARIES --
@@ -126,13 +132,5 @@ void x = () <$ x
 -- >>> reverse <$> (putStr "hi" P.>> P.return ("abc" :: List Char))
 -- hi"cba"
 instance Functor IO where
-  (<$>) =
-    P.fmap
-
-instance Functor [] where
-  (<$>) =
-    P.fmap
-
-instance Functor P.Maybe where
   (<$>) =
     P.fmap
