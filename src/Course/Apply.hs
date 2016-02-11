@@ -35,7 +35,7 @@ instance Apply Id where
     Id (a -> b)
     -> Id a
     -> Id b
-  (<*>) (Id f) = (<$>) f
+   (Id f) <*> a = f <$> a
 
 -- | Implement @Apply@ instance for @List@.
 --
@@ -89,7 +89,7 @@ instance Apply ((->) t) where
     ((->) t (a -> b))
     -> ((->) t a)
     -> ((->) t b)
-  f <*> x = \e -> (f e) (x e)
+  f <*> g = \e -> (f e) (g e)
 
 -- | Apply a binary function in the environment.
 --
@@ -204,7 +204,7 @@ lift4 h fa fb fc fd = h <$> fa <*> fb <*> fc <*> fd
   f a
   -> f b
   -> f b
-a *> b = (const id) <$> a <*> b
+(*>) = liftA2 (const id)
 
 -- | Sequence, discarding the value of the second argument.
 -- Pronounced, left apply.
@@ -229,7 +229,7 @@ a *> b = (const id) <$> a <*> b
   f b
   -> f a
   -> f b
-a <* b = const <$> a <*> b
+(<*) = liftA2 const
 
 -----------------------
 -- SUPPORT LIBRARIES --
@@ -252,5 +252,4 @@ instance Apply P.Maybe where
   f a
   -> f b
   -> f b
-(>>) =
-  (*>)
+(>>) = (*>)

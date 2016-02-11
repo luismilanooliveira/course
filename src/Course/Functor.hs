@@ -96,7 +96,7 @@ instance Functor ((->) t) where
   a
   -> f b
   -> f a
-(<$) a = (<$>) (const a)
+a <$ x = const a <$> x
 
 -- | Anonymous map producing unit value.
 --
@@ -115,7 +115,7 @@ void ::
   Functor f =>
   f a
   -> f ()
-void = (<$) ()
+void x = () <$ x
 
 -----------------------
 -- SUPPORT LIBRARIES --

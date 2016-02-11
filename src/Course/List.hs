@@ -55,7 +55,8 @@ foldRight f b (h :. t) = f h (foldRight f b t)
 
 foldLeft :: (b -> a -> b) -> b -> List a -> b
 foldLeft _ b Nil      = b
-foldLeft f b (h :. t) = let b' = f b h in b' `seq` foldLeft f b' t
+foldLeft f b (h :. t) = let b' = f b h
+                         in b' `seq` foldLeft f b' t
 
 -- END Helper functions and data types
 
@@ -142,7 +143,7 @@ filter ::
   (a -> Bool)
   -> List a
   -> List a
-filter p = foldRight (\x xs -> if p x then x:. xs else xs) Nil
+filter p = foldRight (\x -> if p x then (x :.) else id) Nil
 
 -- | Append two lists to a new list.
 --
@@ -253,7 +254,7 @@ find ::
   (a -> Bool)
   -> List a
   -> Optional a
-find p = headOr Empty . map Full . filter p
+find = headOr Empty . map Full . filter
 
 -- | Determine if the length of the given list is greater than 4.
 --
